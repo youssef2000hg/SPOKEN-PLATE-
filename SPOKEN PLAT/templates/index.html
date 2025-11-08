@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPOKEN PLATE - المساعد الذكي للمطاعم</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-blue: #2563eb;
+            --primary-white: #ffffff;
+            --secondary-blue: #1e40af;
+            --light-blue: #dbeafe;
+            --dark-blue: #1e3a8a;
+            --gray-light: #f8fafc;
+            --gray-dark: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--primary-white);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            color: var(--primary-white);
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .restaurants-section {
+            background: var(--gray-light);
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .chat-section {
+            background: var(--gray-light);
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .section-title {
+            color: var(--dark-blue);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid var(--primary-blue);
+            padding-bottom: 10px;
+        }
+        
+        .restaurants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .restaurant-card {
+            background: var(--primary-white);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: var(--shadow);
+        }
+        
+        .restaurant-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-blue);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15);
+        }
+        
+        .restaurant-card.active {
+            border-color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+        
+        .restaurant-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: var(--primary-blue);
+        }
+        
+        .chat-container {
+            background: var(--primary-white);
+            border-radius: 12px;
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        
+        .user-message {
+            background: var(--primary-blue);
+            color: var(--primary-white);
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .bot-message {
+            background: var(--light-blue);
+            color: var(--dark-blue);
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+            border: 1px solid var(--primary-blue);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            border-color: var(--primary-blue);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--primary-blue);
+            color: var(--primary-white);
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary-blue);
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: var(--primary-white);
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: var(--primary-white);
+        }
+        
+        .btn-success:hover {
+            background: #0da271;
+            transform: translateY(-2px);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .current-restaurant {
+            background: var(--light-blue);
+            border: 2px solid var(--primary-blue);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .audio-controls {
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            color: var(--gray-dark);
+            font-style: italic;
+        }
+        
+        .status {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            border: 1px solid #a7f3d0;
+        }
+
+        .voice-controls {
+            background: var(--light-blue);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 2px solid var(--primary-blue);
+        }
+
+        .voice-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .pulse {
+            width: 12px;
+            height: 12px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(0.8); opacity: 1; }
+        }
+
+        .visualizer {
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            gap: 4px;
+            height: 40px;
+            margin-bottom: 15px;
+        }
+
+        .bar {
+            width: 6px;
+            background: var(--primary-blue);
+            border-radius: 3px;
+            animation: visualizer 1.5s ease-in-out infinite;
+            opacity: 0.7;
+        }
+
+        .bar:nth-child(1) { animation-delay: 0s; height: 10px; }
+        .bar:nth-child(2) { animation-delay: 0.1s; height: 20px; }
+        .bar:nth-child(3) { animation-delay: 0.2s; height: 30px; }
+        .bar:nth-child(4) { animation-delay: 0.3s; height: 20px; }
+        .bar:nth-child(5) { animation-delay: 0.4s; height: 10px; }
+
+        @keyframes visualizer {
+            0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 SPOKEN PLATE</h1>
+            <p>المساعد الصوتي الذكي للمطاعم - تحدث الآن!</p>
+        </div>
+        
+        <div class="content">
+            <div class="restaurants-section">
+                <h2 class="section-title">🏪 المطاعم المتاحة</h2>
+                <div class="restaurants-grid" id="restaurantsGrid">
+                    <!-- سيتم ملؤها بالجافاسكريبت -->
+                </div>
+                
+                <div class="current-restaurant" id="currentRestaurant">
+                    <h3>المطعم الحالي: <span id="currentRestaurantName">لم يتم اختيار مطعم</span></h3>
+                    <p id="currentRestaurantInfo">اختر مطعم من القائمة أعلاه</p>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-success" onclick="updateData()">🔄 تحديث البيانات</button>
+                    <button class="btn btn-primary" onclick="showHelp()">❓ المساعدة</button>
+                </div>
+            </div>
+            
+            <div class="chat-section">
+                <h2 class="section-title">💬 محادثة مع المساعد</h2>
+                
+                <div class="voice-controls">
+                    <div class="visualizer" id="visualizer">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
+                    <div class="voice-status" id="voiceStatus">
+                        <span class="pulse"></span>
+                        <span>جاري التهيئة...</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="startAutoRecording()">🎤 بدء الاستماع التلقائي</button>
+                </div>
+                
+                <div class="status" id="status">
+                    ✅ جاهز للبدء - سيبدأ المساعد تلقائياً
+                </div>
+                
+                <div class="chat-container" id="chatContainer">
+                    <div class="message bot-message">
+                        مرحباً! أنا المساعد الذكي للمطاعم SPOKEN PLATE. 🍕<br>
+                        يمكنني مساعدتك في:<br>
+                        • عرض قوائم المطاعم<br>
+                        • معرفة الأسعار والمكونات<br>
+                        • الاطلاع على العروض<br>
+                        • التوصية بالوجبات<br><br>
+                        سأبدأ الاستماع تلقائياً خلال ثوانٍ!
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <input type="text" id="messageInput" placeholder="أو اكتب رسالتك هنا..." 
+                           onkeypress="handleKeyPress(event)">
+                    <button class="btn btn-primary" onclick="sendMessage()">📤 إرسال</button>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-success" onclick="startRecording()">🎤 تسجيل صوتي</button>
+                    <button class="btn btn-danger" onclick="stopRecording()" id="stopBtn" style="display:none">⏹ إيقاف</button>
+                    <button class="btn btn-primary" onclick="clearChat()">🗑 مسح المحادثة</button>
+                </div>
+                
+                <div class="audio-controls" id="audioControls" style="display:none">
+                    <audio id="audioPlayer" controls style="width: 100%"></audio>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        let currentRestaurant = null;
+        let isAutoRecording = false;
+
+        // تهيئة الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRestaurants();
+            updateCurrentRestaurant();
+            // بدء المساعد تلقائياً بعد تحميل الصفحة
+            setTimeout(() => {
+                startAssistant();
+            }, 2000);
+        });
+
+        // بدء المساعد تلقائياً
+        async function startAssistant() {
+            try {
+                updateStatus('🔄 جاري بدء المساعد...', 'warning');
+                
+                const response = await fetch('/api/بدء_المساعد', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.نجاح) {
+                    addMessage(data.رد, 'bot');
+                    
+                    if (data.audio) {
+                        await playAudio(data.audio);
+                    }
+                    
+                    updateStatus('✅ جاهز للاستماع', 'success');
+                    updateVoiceStatus('🎤 جاهز - تكلم الآن');
+                    
+                    // بدء التسجيل التلقائي بعد انتهاء الصوت
+                    setTimeout(() => {
+                        startAutoRecording();
+                    }, 1000);
+                    
+                } else {
+                    throw new Error(data.خطأ);
+                }
+                
+            } catch (error) {
+                console.error('Error starting assistant:', error);
+                updateStatus('❌ خطأ في بدء المساعد', 'error');
+                updateVoiceStatus('❌ خطأ في التهيئة');
+            }
+        }
+
+        // بدء التسجيل التلقائي
+        async function startAutoRecording() {
+            if (isRecording) return;
+            isAutoRecording = true;
+            
+            try {
+                updateStatus('🎤 جاري الاستماع...', 'warning');
+                updateVoiceStatus('🎤 جاري الاستماع... تحدث الآن');
+                startVisualizer();
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        sampleRate: 16000,
+                        channelCount: 1,
+                        echoCancellation: true
+                    } 
+                });
+                
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    stopVisualizer();
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    await processRecording(audioBlob);
+                    
+                    // إيقاف جميع tracks
+                    stream.getTracks().forEach(track => track.stop());
+                };
+                
+                // بدء التسجيل
+                mediaRecorder.start();
+                isRecording = true;
+                
+                // إيقاف التسجيل تلقائياً بعد 8 ثوانٍ
+                setTimeout(() => {
+                    if (isRecording && isAutoRecording) {
+                        stopAutoRecording();
+                    }
+                }, 8000);
+                
+            } catch (error) {
+                console.error('Error starting auto recording:', error);
+                handleRecordingError();
+            }
+        }
+
+        // إيقاف التسجيل التلقائي
+        function stopAutoRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                isAutoRecording = false;
+            }
+        }
+
+        // معالجة التسجيل
+        async function processRecording(audioBlob) {
+            try {
+                updateStatus('🔄 جاري المعالجة...', 'warning');
+                updateVoiceStatus('🔄 جاري فهم ما قلته...');
+                
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'voice_message.webm');
+                
+                const response = await fetch('/api/معالجة_صوت', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.نجاح) {
+                    addMessage(data.رد, 'bot');
+                    
+                    if (data.audio) {
+                        await playAudio(data.audio);
+                    }
+                    
+                    // استئناف التسجيل التلقائي بعد انتهاء الرد
+                    setTimeout(() => {
+                        if (isAutoRecording) {
+                            startAutoRecording();
+                        }
+                    }, 2000);
+                    
+                } else {
+                    throw new Error(data.خطأ);
+                }
+                
+            } catch (error) {
+                console.error('Error processing recording:', error);
+                addMessage('عذراً، حدث خطأ في معالجة طلبك. جاري إعادة المحاولة...', 'bot');
+                
+                // إعادة المحاولة بعد 3 ثوانٍ
+                setTimeout(() => {
+                    if (isAutoRecording) {
+                        startAutoRecording();
+                    }
+                }, 3000);
+            }
+        }
+
+        // تحميل المطاعم
+        async function loadRestaurants() {
+            try {
+                const response = await fetch('/api/المطاعم');
+                const restaurants = await response.json();
+                
+                const grid = document.getElementById('restaurantsGrid');
+                grid.innerHTML = '';
+                
+                for (const [name, info] of Object.entries(restaurants)) {
+                    const card = document.createElement('div');
+                    card.className = 'restaurant-card';
+                    card.innerHTML = `
+                        <div class="restaurant-icon">🍔</div>
+                        <h3>${name}</h3>
+                        <p>${info.معلومات}</p>
+                    `;
+                    card.onclick = () => selectRestaurant(name);
+                    grid.appendChild(card);
+                }
+            } catch (error) {
+                console.error('Error loading restaurants:', error);
+            }
+        }
+
+        // اختيار مطعم
+        function selectRestaurant(restaurantName) {
+            currentRestaurant = restaurantName;
+            updateCurrentRestaurant();
+            addMessage(`أريد قائمة ${restaurantName}`, 'user');
+            sendMessage(`عرض قائمة ${restaurantName}`);
+        }
+
+        // تحديث المطعم الحالي
+        function updateCurrentRestaurant() {
+            const nameElement = document.getElementById('currentRestaurantName');
+            const infoElement = document.getElementById('currentRestaurantInfo');
+            
+            if (currentRestaurant) {
+                nameElement.textContent = currentRestaurant;
+                infoElement.textContent = 'قل "قائمة" لعرض القائمة الكاملة';
+            } else {
+                nameElement.textContent = 'لم يتم اختيار مطعم';
+                infoElement.textContent = 'اختر مطعم من القائمة أعلاه';
+            }
+        }
+
+        // إرسال رسالة
+        async function sendMessage(text = null) {
+            const input = document.getElementById('messageInput');
+            const message = text || input.value.trim();
+            
+            if (!message) return;
+            
+            if (!text) {
+                addMessage(message, 'user');
+                input.value = '';
+            }
+            
+            showLoading();
+            
+            try {
+                const response = await fetch('/api/معالجة_طلب', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ نص: message })
+                });
+                
+                const data = await response.json();
+                
+                if (data.نجاح) {
+                    addMessage(data.رد, 'bot');
+                    
+                    if (data.audio) {
+                        playAudio(data.audio);
+                    }
+                    
+                    if (data.المطعم_الحالي && data.المطعم_الحالي !== currentRestaurant) {
+                        currentRestaurant = data.المطعم_الحالي;
+                        updateCurrentRestaurant();
+                    }
+                } else {
+                    addMessage('❌ حدث خطأ في المعالجة', 'bot');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('❌ حدث خطأ في الاتصال', 'bot');
+            }
+            
+            hideLoading();
+        }
+
+        // إرسال رسالة صوتية يدوياً
+        async function sendAudioMessage(audioBlob) {
+            showLoading();
+            
+            try {
+                const formData = new FormData();
+                formData.append('audio', audioBlob);
+                
+                const response = await fetch('/api/معالجة_صوت', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.نجاح) {
+                    addMessage(data.رد, 'bot');
+                    
+                    if (data.audio) {
+                        playAudio(data.audio);
+                    }
+                    
+                    if (data.المطعم_الحالي && data.المطعم_الحالي !== currentRestaurant) {
+                        currentRestaurant = data.المطعم_الحالي;
+                        updateCurrentRestaurant();
+                    }
+                } else {
+                    addMessage('❌ حدث خطأ في معالجة الصوت', 'bot');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('❌ حدث خطأ في الاتصال', 'bot');
+            }
+            
+            hideLoading();
+        }
+
+        // بدء التسجيل الصوتي اليدوي
+        async function startRecording() {
+            try {
+                // إيقاف التسجيل التلقائي مؤقتاً
+                isAutoRecording = false;
+                if (isRecording) {
+                    stopAutoRecording();
+                }
+
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    addMessage('🎤 رسالة صوتية...', 'user');
+                    sendAudioMessage(audioBlob);
+                };
+                
+                mediaRecorder.start();
+                isRecording = true;
+                
+                document.getElementById('stopBtn').style.display = 'inline-block';
+                updateStatus('🎤 جاري التسجيل...', 'warning');
+                updateVoiceStatus('🎤 جاري التسجيل... تحدث الآن');
+            } catch (error) {
+                console.error('Error starting recording:', error);
+                addMessage('❌ لا يمكن الوصول إلى الميكروفون', 'bot');
+            }
+        }
+
+        // إيقاف التسجيل اليدوي
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                
+                document.getElementById('stopBtn').style.display = 'none';
+                updateStatus('✅ جاهز للتسجيل', 'success');
+                updateVoiceStatus('✅ جاهز');
+                
+                // إيقاف جميع tracks
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+
+                // إعادة تفعيل التسجيل التلقائي بعد 3 ثوانٍ
+                setTimeout(() => {
+                    isAutoRecording = true;
+                    startAutoRecording();
+                }, 3000);
+            }
+        }
+
+        // التعامل مع أخطاء التسجيل
+        function handleRecordingError() {
+            updateStatus('❌ خطأ في الميكروفون', 'error');
+            updateVoiceStatus('❌ خطأ في الميكروفون');
+            addMessage('عذراً، لا يمكن الوصول إلى الميكروفون. تأكد من منح الإذن اللازم.', 'bot');
+        }
+
+        // تشغيل الصوت
+        function playAudio(audioBase64) {
+            return new Promise((resolve) => {
+                const audioPlayer = document.getElementById('audioPlayer');
+                const audioControls = document.getElementById('audioControls');
+                
+                audioPlayer.src = 'data:audio/mp3;base64,' + audioBase64;
+                audioControls.style.display = 'block';
+                
+                audioPlayer.onended = () => {
+                    audioControls.style.display = 'none';
+                    resolve();
+                };
+                
+                audioPlayer.play().catch(error => {
+                    console.log('Auto-play prevented, showing controls');
+                    audioPlayer.controls = true;
+                    resolve();
+                });
+            });
+        }
+
+        // إضافة رسالة للشات
+        function addMessage(text, sender) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.textContent = text;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // عرض التحميل
+        function showLoading() {
+            const chatContainer = document.getElementById('chatContainer');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message bot-message loading';
+            loadingDiv.id = 'loadingMessage';
+            loadingDiv.textContent = 'جاري المعالجة...';
+            
+            chatContainer.appendChild(loadingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // إخفاء التحميل
+        function hideLoading() {
+            const loadingMessage = document.getElementById('loadingMessage');
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
+        }
+
+        // مسح المحادثة
+        function clearChat() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.innerHTML = `
+                <div class="message bot-message">
+                    مرحباً! أنا المساعد الذكي للمطاعم SPOKEN PLATE. 🍕<br>
+                    يمكنني مساعدتك في:<br>
+                    • عرض قوائم المطاعم<br>
+                    • معرفة الأسعار والمكونات<br>
+                    • الاطلاع على العروض<br>
+                    • التوصية بالوجبات<br><br>
+                    سأبدأ الاستماع تلقائياً خلال ثوانٍ!
+                </div>
+            `;
+        }
+
+        // عرض المساعدة
+        function showHelp() {
+            addMessage('مساعدة', 'user');
+            sendMessage('مساعدة');
+        }
+
+        // تحديث البيانات
+        async function updateData() {
+            try {
+                const response = await fetch('/api/تحديث_البيانات');
+                const data = await response.json();
+                addMessage('✅ ' + data.رسالة, 'bot');
+                loadRestaurants();
+            } catch (error) {
+                addMessage('❌ خطأ في تحديث البيانات', 'bot');
+            }
+        }
+
+        // التعامل مع ضغط الزر
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // تحديث حالة النظام
+        function updateStatus(message, type = 'success') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            
+            if (type === 'success') {
+                statusElement.style.background = '#d1fae5';
+                statusElement.style.color = '#065f46';
+                statusElement.style.border = '1px solid #a7f3d0';
+            } else if (type === 'warning') {
+                statusElement.style.background = '#fef3c7';
+                statusElement.style.color = '#92400e';
+                statusElement.style.border = '1px solid #f59e0b';
+            } else {
+                statusElement.style.background = '#fee2e2';
+                statusElement.style.color = '#991b1b';
+                statusElement.style.border = '1px solid #fecaca';
+            }
+        }
+
+        // تحديث حالة الصوت
+        function updateVoiceStatus(message) {
+            const voiceStatus = document.getElementById('voiceStatus');
+            voiceStatus.innerHTML = `<span class="pulse"></span><span>${message}</span>`;
+        }
+
+        // تشغيل المُصور البصري
+        function startVisualizer() {
+            const visualizer = document.getElementById('visualizer');
+            visualizer.style.opacity = '1';
+        }
+
+        // إيقاف المُصور البصري
+        function stopVisualizer() {
+            const visualizer = document.getElementById('visualizer');
+            visualizer.style.opacity = '0.5';
+        }
+
+        // التحقق من دعم المتصفح
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            updateStatus('❌ المتصفح غير مدعوم', 'error');
+            updateVoiceStatus('❌ المتصفح لا يدعم التسجيل الصوتي');
+            addMessage('عذراً، متصفحك لا يدعم التسجيل الصوتي. يرجى استخدام Chrome أو Firefox أو Edge.', 'bot');
+        }
+    </script>
+</body>
+</html>
